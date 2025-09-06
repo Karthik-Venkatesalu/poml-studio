@@ -2,20 +2,49 @@ import React, { useState } from 'react';
 import { Allotment } from 'allotment';
 import { usePomlStore } from './hooks';
 import TextAnalysisDemo from './components/TextAnalysisDemo';
+import { PomlGeneratorDemo } from './components/PomlGeneratorDemo';
 import './App.css';
 
+type DemoMode = 'studio' | 'textAnalysis' | 'pomlGenerator';
+
 // Component placeholders for now
-const TopNavigation: React.FC<{ showDemo: boolean; onToggleDemo: () => void }> = ({ showDemo, onToggleDemo }) => (
+const TopNavigation: React.FC<{ currentMode: DemoMode; onModeChange: (mode: DemoMode) => void }> = ({ currentMode, onModeChange }) => (
   <div className="h-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
     <h1 className="text-xl font-bold text-gray-900 dark:text-white">
       POML Studio
     </h1>
-    <button
-      onClick={onToggleDemo}
-      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-    >
-      {showDemo ? 'Back to Studio' : 'Text Analysis Demo'}
-    </button>
+    <div className="flex space-x-2">
+      <button
+        onClick={() => onModeChange('studio')}
+        className={`px-4 py-2 rounded-md transition-colors ${
+          currentMode === 'studio'
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+        }`}
+      >
+        Studio
+      </button>
+      <button
+        onClick={() => onModeChange('textAnalysis')}
+        className={`px-4 py-2 rounded-md transition-colors ${
+          currentMode === 'textAnalysis'
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+        }`}
+      >
+        Text Analysis
+      </button>
+      <button
+        onClick={() => onModeChange('pomlGenerator')}
+        className={`px-4 py-2 rounded-md transition-colors ${
+          currentMode === 'pomlGenerator'
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+        }`}
+      >
+        POML Generator
+      </button>
+    </div>
   </div>
 );
 
@@ -127,22 +156,31 @@ const StatusBar: React.FC = () => {
 
 const App: React.FC = () => {
   const { theme, inspectorPanelOpen } = usePomlStore();
-  const [showDemo, setShowDemo] = useState(false);
+  const [currentMode, setCurrentMode] = useState<DemoMode>('studio');
 
-  const toggleDemo = () => setShowDemo(!showDemo);
-
-  if (showDemo) {
+  if (currentMode === 'textAnalysis') {
     return (
       <div className={`min-h-screen ${theme}`}>
-        <TopNavigation showDemo={showDemo} onToggleDemo={toggleDemo} />
+        <TopNavigation currentMode={currentMode} onModeChange={setCurrentMode} />
         <TextAnalysisDemo />
+      </div>
+    );
+  }
+
+  if (currentMode === 'pomlGenerator') {
+    return (
+      <div className={`min-h-screen ${theme}`}>
+        <TopNavigation currentMode={currentMode} onModeChange={setCurrentMode} />
+        <div className="p-6">
+          <PomlGeneratorDemo />
+        </div>
       </div>
     );
   }
 
   return (
     <div className={`h-screen flex flex-col ${theme}`}>
-      <TopNavigation showDemo={showDemo} onToggleDemo={toggleDemo} />
+      <TopNavigation currentMode={currentMode} onModeChange={setCurrentMode} />
       <main className="flex-1 flex bg-gray-50 dark:bg-gray-900">
         <Allotment>
           <Allotment.Pane minSize={300}>
