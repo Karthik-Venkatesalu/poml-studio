@@ -25,6 +25,9 @@ interface PomlStoreState extends AppState {
   setTheme: (theme: 'light' | 'dark') => void;
   updateSettings: (settings: Partial<UserSettings>) => void;
   resetState: () => void;
+  // Add missing properties
+  analysis?: any;
+  generatePoml?: () => void;
 }
 
 const initialState: AppState = {
@@ -88,6 +91,24 @@ export const usePomlStore = create<PomlStoreState>()(
 
       resetState: () => 
         set(initialState),
+
+      // Mock analysis for demo
+      analysis: undefined,
+
+      // Mock generate function
+      generatePoml: () => {
+        const mockPoml = `<?xml version="1.0" encoding="UTF-8"?>
+<poml>
+  <role>You are a helpful AI assistant.</role>
+  <task>Generate a structured response based on the input.</task>
+  <constraints>
+    <item>Keep responses clear and concise</item>
+    <item>Use proper formatting</item>
+  </constraints>
+  <output-format>Respond in a structured format</output-format>
+</poml>`;
+        set({ generatedPoml: mockPoml });
+      },
     }),
     {
       name: 'poml-studio-store',
