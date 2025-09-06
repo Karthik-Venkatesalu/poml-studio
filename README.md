@@ -1,98 +1,69 @@
-````markdown
-# POML Studio
+# React + TypeScript + Vite
 
-> 🛠️ From raw text to orchestrated prompts — a visual studio for POML.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-POML Studio is a standalone **React-based web app** that converts plain text prompts into structured [POML](https://microsoft.github.io/poml/latest/) (Prompt Orchestration Markup Language).  
-Think of it as *Postman for prompt engineers* — paste messy instructions, watch them become clean `<Role>`, `<Task>`, `<Constraints>`, and `<OutputFormat>` blocks, ready to run and reuse.
+Currently, two official plugins are available:
 
----
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## ✨ Features (planned)
+## Expanding the ESLint configuration
 
-- **Plain text → POML**  
-  Paste or type any prompt, auto-detect Role, Task, Constraints, Examples, and Output format.
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-- **Interactive Inspector**  
-  Side panel to edit extracted sections before generating final POML.
+```js
+export default tseslint.config([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-- **Live Preview**  
-  Syntax-highlighted POML view with instant updates.
+      // Remove tseslint.configs.recommended and replace with this
+      ...tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      ...tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      ...tseslint.configs.stylisticTypeChecked,
 
-- **Linting & Guardrails**  
-  Catch missing `<Role>`/`<Task>`, unresolved variables, or unsafe constraints.
-
-- **One-click Refinements**  
-  Buttons for “Make JSON-strict”, “Add Safety Rules”, or “Generate Example”.
-
-- **Export / Import**  
-  Save prompts as `.poml` files, reload them later, or share across teams.
-
----
-
-## 🚀 Getting Started
-
-### Clone and install
-```bash
-git clone https://github.com/your-username/poml-studio.git
-cd poml-studio
-npm install
-````
-
-### Run locally
-
-```bash
-npm start
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to use POML Studio.
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-### Build for production
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-```bash
-npm run build
-```
-
----
-
-## 🗂️ Project Structure
-
-```
-poml-studio/
-  ├─ src/
-  │   ├─ components/     # React UI (Editor, Preview, Inspector)
-  │   ├─ parser/         # Plain text → semantic sections
-  │   ├─ generator/      # Sections → POML emitter
-  │   ├─ linter/         # Static checks
-  │   ├─ hooks/          # State mgmt (usePoml, useLint, etc.)
-  │   └─ App.tsx
-  ├─ public/
-  ├─ package.json
-  └─ README.md
-```
-
----
-
-## 🧭 Roadmap
-
-* [ ] MVP: Paste text → Generate & download `.poml`
-* [ ] Inspector UI for editing sections
-* [ ] Linting + Guardrail suggestions
-* [ ] Preset OutputFormat styles (JSON, Markdown, CSV)
-* [ ] Live model test (optional, with user-provided API key)
-* [ ] Sharing via gists or permalinks
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-If you have ideas for heuristics, linting rules, or UI improvements, open an issue or submit a pull request.
-
----
-
-## 📜 License
-
-MIT License © 2025 [Karthik Venkatesalu]
-
+export default tseslint.config([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
