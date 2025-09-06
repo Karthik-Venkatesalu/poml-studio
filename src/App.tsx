@@ -1,14 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Allotment } from 'allotment';
 import { usePomlStore } from './hooks';
+import TextAnalysisDemo from './components/TextAnalysisDemo';
 import './App.css';
 
 // Component placeholders for now
-const TopNavigation: React.FC = () => (
-  <div className="h-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-4">
+const TopNavigation: React.FC<{ showDemo: boolean; onToggleDemo: () => void }> = ({ showDemo, onToggleDemo }) => (
+  <div className="h-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
     <h1 className="text-xl font-bold text-gray-900 dark:text-white">
       POML Studio
     </h1>
+    <button
+      onClick={onToggleDemo}
+      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+    >
+      {showDemo ? 'Back to Studio' : 'Text Analysis Demo'}
+    </button>
   </div>
 );
 
@@ -120,10 +127,22 @@ const StatusBar: React.FC = () => {
 
 const App: React.FC = () => {
   const { theme, inspectorPanelOpen } = usePomlStore();
+  const [showDemo, setShowDemo] = useState(false);
+
+  const toggleDemo = () => setShowDemo(!showDemo);
+
+  if (showDemo) {
+    return (
+      <div className={`min-h-screen ${theme}`}>
+        <TopNavigation showDemo={showDemo} onToggleDemo={toggleDemo} />
+        <TextAnalysisDemo />
+      </div>
+    );
+  }
 
   return (
     <div className={`h-screen flex flex-col ${theme}`}>
-      <TopNavigation />
+      <TopNavigation showDemo={showDemo} onToggleDemo={toggleDemo} />
       <main className="flex-1 flex bg-gray-50 dark:bg-gray-900">
         <Allotment>
           <Allotment.Pane minSize={300}>

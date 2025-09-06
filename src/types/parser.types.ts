@@ -1,13 +1,18 @@
+export type SectionType = 'role' | 'task' | 'constraints' | 'examples' | 'outputFormat' | 'unknown';
+
 export interface DetectedSection {
   id: string;
-  type: 'role' | 'task' | 'constraints' | 'examples' | 'outputFormat' | 'unknown';
+  type: SectionType;
   content: string;
   confidence: number;
   startIndex: number;
   endIndex: number;
+  patterns?: string[];
+  metadata?: Record<string, any>;
 }
 
 export interface ParseError {
+  type: string;
   message: string;
   line?: number;
   column?: number;
@@ -20,14 +25,20 @@ export interface ParseResult {
   confidence: number;
 }
 
-export interface PatternMatch {
-  pattern: RegExp;
-  matches: Array<{
-    text: string;
-    index: number;
-    length: number;
-  }>;
+export interface AnalysisResult {
+  sections: DetectedSection[];
   confidence: number;
+  processingTime: number;
+  errors: ParseError[];
+}
+
+export interface PatternMatch {
+  type: SectionType;
+  confidence: number;
+  matchedText: string;
+  matchedPatterns: string[];
+  startIndex: number;
+  endIndex: number;
 }
 
 export interface ParsingConfig {
