@@ -1,3 +1,24 @@
+export interface PomlSection {
+  id: string;
+  type: 'overview' | 'objective' | 'motivation' | 'learning' | 'custom';
+  content: string;
+  startLine?: number;
+  endLine?: number;
+  confidence: number;
+}
+
+export interface PomlGenerationResult {
+  poml: string;
+  confidence: number;
+  sections: string[];
+  metadata: {
+    generatedAt: string;
+    version: string;
+    wordCount: number;
+    sectionCount: number;
+  };
+}
+
 export interface PomlComponent {
   tag: string;
   attributes?: Record<string, string>;

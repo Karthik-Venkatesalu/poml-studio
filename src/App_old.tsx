@@ -4,13 +4,25 @@ import { usePomlStore } from './hooks';
 import TextInput from './components/Editor/TextInput';
 import { PomlPreview } from './components/Preview/PomlPreview';
 import { InspectorPanel } from './components/Inspector/InspectorPanel';
-import type { PomlSection } from './types/poml.types';
+import type { PomlSection } from './types/poml';
+import TextAnalysisDemo from './components/TextAnalysisDemo';
+import { PomlGeneratorDemo } from './components/PomlGeneratorDemo';
+import './App.css';, { useState, useMemo } from 'react';
+import { Allotment } from 'allotment';
+import { usePomlStore } from './hooks';
+import { TextInput } from './components/Editor/TextInput';
+import { AnalysisPanel } from './components/AnalysisPanel';
+import { PomlGenerator } from './components/PomlGenerator';
+import { PomlPreview } from './components/Preview/PomlPreview';
+import { InspectorPanel } from './components/Inspector/InspectorPanel';
+import { PomlSection } from './types/poml';
 import TextAnalysisDemo from './components/TextAnalysisDemo';
 import { PomlGeneratorDemo } from './components/PomlGeneratorDemo';
 import './App.css';
 
 type DemoMode = 'studio' | 'textAnalysis' | 'pomlGenerator';
 
+// Component placeholders for now
 const TopNavigation: React.FC<{ currentMode: DemoMode; onModeChange: (mode: DemoMode) => void }> = ({ currentMode, onModeChange }) => (
   <div className="h-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
     <h1 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -51,106 +63,6 @@ const TopNavigation: React.FC<{ currentMode: DemoMode; onModeChange: (mode: Demo
   </div>
 );
 
-const AnalysisPanel: React.FC = () => {
-  const { analysis, isProcessing } = usePomlStore();
-  
-  return (
-    <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-medium text-gray-900 dark:text-white">
-          Text Analysis
-        </h2>
-      </div>
-      <div className="flex-1 p-4 overflow-auto">
-        {isProcessing ? (
-          <div className="flex items-center justify-center h-32">
-            <div className="text-gray-500 dark:text-gray-400">Analyzing...</div>
-          </div>
-        ) : analysis ? (
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Overview</h3>
-              <p className="text-sm text-gray-700 dark:text-gray-300">{analysis.overview}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Key Points</h3>
-              <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-                {analysis.keyPoints.map((point, index) => (
-                  <li key={index}>• {point}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Metrics</h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-500 dark:text-gray-400">Confidence:</span>
-                  <span className="ml-2 text-gray-900 dark:text-white">{Math.round(analysis.confidence * 100)}%</span>
-                </div>
-                <div>
-                  <span className="text-gray-500 dark:text-gray-400">Complexity:</span>
-                  <span className="ml-2 text-gray-900 dark:text-white">{analysis.complexity.toFixed(1)}</span>
-                </div>
-                <div>
-                  <span className="text-gray-500 dark:text-gray-400">Words:</span>
-                  <span className="ml-2 text-gray-900 dark:text-white">{analysis.metadata.wordCount}</span>
-                </div>
-                <div>
-                  <span className="text-gray-500 dark:text-gray-400">Reading Time:</span>
-                  <span className="ml-2 text-gray-900 dark:text-white">{analysis.metadata.readingTime}min</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-            <p>No analysis available</p>
-            <p className="text-sm mt-2">Enter text and run analysis to see results</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const PomlGenerator: React.FC = () => {
-  const { generatedPoml, generatePoml, isProcessing } = usePomlStore();
-  
-  const handleGenerate = () => {
-    generatePoml();
-  };
-
-  return (
-    <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-medium text-gray-900 dark:text-white">
-          POML Generator
-        </h2>
-      </div>
-      <div className="flex-1 p-4">
-        <div className="space-y-4">
-          <button
-            onClick={handleGenerate}
-            disabled={isProcessing}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isProcessing ? 'Generating...' : 'Generate POML'}
-          </button>
-          
-          {generatedPoml && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Generated POML</h3>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Length: {generatedPoml.length} characters
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const StatusBar: React.FC = () => {
   const { isProcessing, inputText, detectedSections, generatedPoml } = usePomlStore();
   
@@ -180,11 +92,12 @@ const StatusBar: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const { theme, generatedPoml, detectedSections, inputText, updateInputText } = usePomlStore();
+  const { theme, inspectorPanelOpen, generatedPoml, detectedSections } = usePomlStore();
   const [currentMode, setCurrentMode] = useState<DemoMode>('studio');
   const [activeTab, setActiveTab] = useState<'input' | 'analysis' | 'generator'>('input');
   const [rightPanelTab, setRightPanelTab] = useState<'preview' | 'inspector'>('preview');
 
+  // Convert detected sections to PomlSection format
   const extractedSections = useMemo((): PomlSection[] => {
     return detectedSections.map((section, index) => ({
       id: section.id,
@@ -192,10 +105,11 @@ const App: React.FC = () => {
       content: section.content,
       startLine: index,
       endLine: index,
-      confidence: section.confidence / 100
+      confidence: section.confidence / 100 // Convert percentage to decimal
     }));
   }, [detectedSections]);
 
+  // Mock confidence scores for sections
   const confidenceScores = useMemo(() => ({
     overview: 0.8,
     objective: 0.8,
@@ -204,10 +118,12 @@ const App: React.FC = () => {
   }), []);
 
   const handleSectionUpdate = (sectionId: string, content: string) => {
+    // TODO: Implement section update logic
     console.log('Update section:', sectionId, content);
   };
 
   const handleSectionReorder = (fromIndex: number, toIndex: number) => {
+    // TODO: Implement section reorder logic
     console.log('Reorder sections:', fromIndex, toIndex);
   };
 
@@ -236,8 +152,10 @@ const App: React.FC = () => {
       <TopNavigation currentMode={currentMode} onModeChange={setCurrentMode} />
       <main className="flex-1 flex bg-gray-50 dark:bg-gray-900">
         <Allotment defaultSizes={[300, 1, 300]}>
+          {/* Left Panel - Input/Analysis/Generator */}
           <Allotment.Pane minSize={250}>
             <div className="h-full flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+              {/* Tab Navigation */}
               <div className="flex border-b border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => setActiveTab('input')}
@@ -271,13 +189,11 @@ const App: React.FC = () => {
                 </button>
               </div>
 
+              {/* Tab Content */}
               <div className="flex-1 overflow-hidden">
                 {activeTab === 'input' && (
                   <div className="h-full">
-                    <TextInput 
-                      value={inputText || ''}
-                      onChange={updateInputText}
-                    />
+                    <TextInput />
                   </div>
                 )}
                 {activeTab === 'analysis' && (
@@ -294,18 +210,17 @@ const App: React.FC = () => {
             </div>
           </Allotment.Pane>
 
+          {/* Center Panel - Main Preview */}
           <Allotment.Pane minSize={400}>
             <div className="h-full bg-white dark:bg-gray-800">
-              <PomlPreview 
-                pomlContent={generatedPoml || ''} 
-                isValid={true} 
-                validationErrors={[]} 
-              />
+              <PomlPreview poml={generatedPoml || ''} />
             </div>
           </Allotment.Pane>
 
+          {/* Right Panel - Inspector/Preview */}
           <Allotment.Pane minSize={250}>
             <div className="h-full flex flex-col bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
+              {/* Tab Navigation */}
               <div className="flex border-b border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => setRightPanelTab('preview')}
@@ -329,6 +244,7 @@ const App: React.FC = () => {
                 </button>
               </div>
 
+              {/* Tab Content */}
               <div className="flex-1 overflow-hidden">
                 {rightPanelTab === 'preview' && (
                   <div className="h-full p-4">
@@ -373,6 +289,57 @@ const App: React.FC = () => {
               </div>
             </div>
           </Allotment.Pane>
+        </Allotment>
+      </main>
+      <StatusBar />
+    </div>
+  );
+};
+
+export default App;
+
+const App: React.FC = () => {
+  const { theme, inspectorPanelOpen } = usePomlStore();
+  const [currentMode, setCurrentMode] = useState<DemoMode>('studio');
+
+  if (currentMode === 'textAnalysis') {
+    return (
+      <div className={`min-h-screen ${theme}`}>
+        <TopNavigation currentMode={currentMode} onModeChange={setCurrentMode} />
+        <TextAnalysisDemo />
+      </div>
+    );
+  }
+
+  if (currentMode === 'pomlGenerator') {
+    return (
+      <div className={`min-h-screen ${theme}`}>
+        <TopNavigation currentMode={currentMode} onModeChange={setCurrentMode} />
+        <div className="p-6">
+          <PomlGeneratorDemo />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`h-screen flex flex-col ${theme}`}>
+      <TopNavigation currentMode={currentMode} onModeChange={setCurrentMode} />
+      <main className="flex-1 flex bg-gray-50 dark:bg-gray-900">
+        <Allotment>
+          <Allotment.Pane minSize={300}>
+            <InputEditor />
+          </Allotment.Pane>
+          <Allotment>
+            <Allotment.Pane minSize={300}>
+              <PomlPreview />
+            </Allotment.Pane>
+            {inspectorPanelOpen && (
+              <Allotment.Pane minSize={250} maxSize={500}>
+                <InspectorPanel />
+              </Allotment.Pane>
+            )}
+          </Allotment>
         </Allotment>
       </main>
       <StatusBar />
